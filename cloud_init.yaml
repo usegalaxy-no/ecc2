@@ -1,0 +1,15 @@
+#cloud-config
+users:
+  - name: slurm
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users
+    home: /home/slurm
+    shell: /bin/bash
+    lock_passwd: false
+    passwd: $6$rounds=4096$randomsalt$hashedpassword
+
+runcmd:
+  - apt-get update
+  - apt-get install -y slurm-wlm
+  - systemctl enable slurmd
+  - systemctl start slurmd
