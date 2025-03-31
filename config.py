@@ -31,6 +31,9 @@ def parse_config_and_args():
     config.read(args.config)
 
     # Merge config file and command-line arguments
+    min_pending_jobs = args.min_pending_jobs or config.get("service", "min_pending_jobs", fallback="1")
+    min_pending_jobs = int(min_pending_jobs.split(";")[0].strip())  # Strip inline comments and convert to int
+
     settings = {
         "auth_url": args.auth_url or config.get("openstack", "auth_url", fallback=None),
         "project_name": args.project_name or config.get("openstack", "project_name", fallback=None),
@@ -50,7 +53,7 @@ def parse_config_and_args():
         "node_config": args.node_config or config.get("slurm", "node_config", fallback=None),
         "cpus": args.cpus or config.getint("slurm", "cpus", fallback=4),
         "vm_name_prefix": args.vm_name_prefix or config.get("vm", "vm_name_prefix", fallback="ecc"),
-        "min_pending_jobs": args.min_pending_jobs or config.getint("service", "min_pending_jobs", fallback=1),
+        "min_pending_jobs": min_pending_jobs,
     }
 
     return settings
