@@ -34,6 +34,7 @@ def create_vm(conn, name, cloud_init_file, settings):
         image_id=image.id,  # Use the resolved image ID
         networks=[{"uuid": network.id}],  # Use the resolved network UUID
         user_data=user_data_base64,  # Pass Base64-encoded user_data
+        key_name=settings["key_name"],  # Add the key pair name
     )
     conn.compute.wait_for_server(server)
     print(f"VM {name} created successfully.")
