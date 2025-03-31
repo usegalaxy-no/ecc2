@@ -43,7 +43,13 @@ def create_vm(conn, name, cloud_init_file, settings):
         user_data=user_data_base64,  # Pass Base64-encoded user_data
     )
     conn.compute.wait_for_server(server)
-    print(f"VM {name} created successfully.")
+
+    # Ensure the VM is in the "ACTIVE" state
+    server = conn.compute.get_server(server.id)
+    if server.status != "ACTIVE":
+        raise RuntimeError(f"VM {name} failed to reach 'ACTIVE' state. Current state: {server.status}")
+
+    print(f"VM {name} is in 'ACTIVE' state.")
     return server
 
 def get_running_vms(conn):

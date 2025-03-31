@@ -42,7 +42,7 @@ def main():
                     print("No available VM names. Maximum VM limit reached.")
                     break
                 server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
-                vm_ip = server.access_ipv4  # Adjust based on your OpenStack setup
+                vm_ip = server.access_ipv4
                 add_vm_to_slurm(vm_ip, settings)
         elif running_vms < settings["max_vms"]:
             pending_jobs = get_slurm_queue()
@@ -53,7 +53,7 @@ def main():
                     print("No available VM names. Maximum VM limit reached.")
                     break
                 server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
-                vm_ip = server.access_ipv4  # Adjust based on your OpenStack setup
+                vm_ip = server.access_ipv4
                 add_vm_to_slurm(vm_ip, settings)
         else:
             print(f"Maximum VM limit of {settings['max_vms']} reached. No new VMs will be created.")
