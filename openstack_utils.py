@@ -7,8 +7,8 @@ def create_vm(conn, name, cloud_init_file, settings):
         user_data = f.read()
     server = conn.compute.create_server(
         name=name,
-        flavor_id=settings["vm_flavor"],
-        image_id=settings["vm_image"],
+        flavor_name=settings["vm_flavor"],
+        image_name=settings["vm_image"],
         networks=[{"uuid": settings["vm_network"]}],
         user_data=user_data,
     )
