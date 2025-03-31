@@ -43,10 +43,17 @@ def main():
                     break
                 server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
 
-                # Retrieve the VM's IP address
-                vm_ip = server.access_ipv4 or server.access_ipv6  # Try IPv4 first, fallback to IPv6
+                # Retrieve the VM's IP address from the network interface
+                vm_ip = None
+                network_name = settings["vm_network"]
+                if network_name in server.addresses:
+                    for address in server.addresses[network_name]:
+                        if address.get("OS-EXT-IPS:type") == "fixed":  # Look for a fixed IP
+                            vm_ip = address.get("addr")
+                            break
+
                 if not vm_ip:
-                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name}.")
+                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name} on network {network_name}.")
 
                 print(f"Adding VM with IP {vm_ip} to Slurm cluster dynamically...")
                 add_vm_to_slurm(vm_ip, settings)
@@ -60,10 +67,17 @@ def main():
                     break
                 server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
 
-                # Retrieve the VM's IP address
-                vm_ip = server.access_ipv4 or server.access_ipv6  # Try IPv4 first, fallback to IPv6
+                # Retrieve the VM's IP address from the network interface
+                vm_ip = None
+                network_name = settings["vm_network"]
+                if network_name in server.addresses:
+                    for address in server.addresses[network_name]:
+                        if address.get("OS-EXT-IPS:type") == "fixed":  # Look for a fixed IP
+                            vm_ip = address.get("addr")
+                            break
+
                 if not vm_ip:
-                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name}.")
+                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name} on network {network_name}.")
 
                 print(f"Adding VM with IP {vm_ip} to Slurm cluster dynamically...")
                 add_vm_to_slurm(vm_ip, settings)
