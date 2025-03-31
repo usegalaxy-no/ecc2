@@ -25,12 +25,11 @@ def get_running_vms(conn):
         print(f"Error fetching running VMs: {e}")
         return []
 
-def get_next_vm_name(conn, settings, max_vms):
-    """Generate the next sequential VM name."""
-    prefix = settings["vm_name_prefix"]
-    running_vms = get_running_vms(conn)
+def get_next_vm_name(conn, vm_name_prefix, max_vms):
+    """Generate the next available VM name."""
+    existing_vms = [server.name for server in conn.compute.servers()]
     for i in range(1, max_vms + 1):
-        vm_name = f"{prefix}-{i}"
-        if vm_name not in running_vms:
+        vm_name = f"{vm_name_prefix}-{i}"
+        if vm_name not in existing_vms:
             return vm_name
-    return None  # No available VM names
+    return None
