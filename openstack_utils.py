@@ -28,13 +28,20 @@ def create_vm(conn, name, cloud_init_file, settings):
     if not image:
         raise ValueError(f"Image '{image_name}' not found in OpenStack.")
 
+    # Validate the key pair name
+    key_name = settings["key_name"]
+    if key_name:
+        keypair = conn.compute.find_keypair(key_name)
+        if not keypair:
+            raise ValueError(f"Key pair '{key_name}' not found in OpenStack.")
+
     server = conn.compute.create_server(
         name=name,
         flavor_id=flavor.id,  # Use the resolved flavor ID
         image_id=image.id,  # Use the resolved image ID
         networks=[{"uuid": network.id}],  # Use the resolved network UUID
         user_data=user_data_base64,  # Pass Base64-encoded user_data
-        key_name=settings["key_name"],  # Add the key pair name
+        key_name=key_name,  # Add the validated key pair name
     )
     conn.compute.wait_for_server(server)
     print(f"VM {name} created successfully.")
