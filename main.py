@@ -42,7 +42,13 @@ def main():
                     print("No available VM names. Maximum VM limit reached.")
                     break
                 server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
-                vm_ip = server.access_ipv4
+
+                # Retrieve the VM's IP address
+                vm_ip = server.access_ipv4 or server.access_ipv6  # Try IPv4 first, fallback to IPv6
+                if not vm_ip:
+                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name}.")
+
+                print(f"Adding VM with IP {vm_ip} to Slurm cluster dynamically...")
                 add_vm_to_slurm(vm_ip, settings)
         elif running_vms < settings["max_vms"]:
             pending_jobs = get_slurm_queue()
@@ -53,7 +59,13 @@ def main():
                     print("No available VM names. Maximum VM limit reached.")
                     break
                 server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
-                vm_ip = server.access_ipv4
+
+                # Retrieve the VM's IP address
+                vm_ip = server.access_ipv4 or server.access_ipv6  # Try IPv4 first, fallback to IPv6
+                if not vm_ip:
+                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name}.")
+
+                print(f"Adding VM with IP {vm_ip} to Slurm cluster dynamically...")
                 add_vm_to_slurm(vm_ip, settings)
         else:
             print(f"Maximum VM limit of {settings['max_vms']} reached. No new VMs will be created.")
