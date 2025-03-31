@@ -16,9 +16,15 @@ def create_vm(conn, name, cloud_init_file, settings):
     if not network:
         raise ValueError(f"Network '{network_name}' not found in OpenStack.")
 
+    # Resolve the flavor name to its ID
+    flavor_name = settings["vm_flavor"]
+    flavor = conn.compute.find_flavor(flavor_name)
+    if not flavor:
+        raise ValueError(f"Flavor '{flavor_name}' not found in OpenStack.")
+
     server = conn.compute.create_server(
         name=name,
-        flavor_name=settings["vm_flavor"],
+        flavor_id=flavor.id,  # Use the resolved flavor ID
         image_name=settings["vm_image"],
         networks=[{"uuid": network.id}],  # Use the resolved network UUID
         user_data=user_data_base64,  # Pass Base64-encoded user_data
