@@ -55,7 +55,7 @@ def parse_config_and_args():
         "cpus": args.cpus or config.getint("slurm", "cpus", fallback=4),
         "vm_name_prefix": args.vm_name_prefix or config.get("vm", "vm_name_prefix", fallback="ecc"),
         "min_pending_jobs": min_pending_jobs,
-        "key_name": args.key_name or config.get("vm", "key_name", fallback=''),
+        "key_name": args.key_name or config.get("vm", "key_name", fallback=None),
     }
 
     return settings
