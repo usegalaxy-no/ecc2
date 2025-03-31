@@ -1,10 +1,14 @@
 from openstack import connection
+import base64
 
 def create_vm(conn, name, cloud_init_file, settings):
     """Create a new VM in OpenStack with a cloud-init file."""
     print(f"Creating VM: {name}")
     with open(cloud_init_file, "r") as f:
         user_data = f.read()
+
+    # Encode user_data in Base64
+    user_data_base64 = base64.b64encode(user_data.encode("utf-8")).decode("utf-8")
 
     # Find the network UUID based on the name
     network_name = settings["vm_network"]
@@ -17,7 +21,7 @@ def create_vm(conn, name, cloud_init_file, settings):
         flavor_name=settings["vm_flavor"],
         image_name=settings["vm_image"],
         networks=[{"uuid": network.id}],  # Use the resolved network UUID
-        user_data=user_data,
+        user_data=user_data_base64,  # Pass Base64-encoded user_data
     )
     conn.compute.wait_for_server(server)
     print(f"VM {name} created successfully.")
