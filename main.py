@@ -1,8 +1,25 @@
 import time
+import subprocess
 from openstack import connection
 from config import parse_config_and_args
 from openstack_utils import create_vm, get_running_vms, get_next_vm_name
 from slurm_utils import add_vm_to_slurm
+
+def get_slurm_queue():
+    """Retrieve the number of pending jobs from the Slurm queue."""
+    try:
+        result = subprocess.run(
+            ["squeue", "--states=PD", "--noheader"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True
+        )
+        # Count the number of lines in the output, each representing a pending job
+        return len(result.stdout.strip().split("\n")) if result.stdout.strip() else 0
+    except subprocess.CalledProcessError as e:
+        print(f"Error retrieving Slurm queue: {e.stderr}")
+        return 0
 
 def main():
     settings = parse_config_and_args()
