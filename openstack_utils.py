@@ -5,11 +5,18 @@ def create_vm(conn, name, cloud_init_file, settings):
     print(f"Creating VM: {name}")
     with open(cloud_init_file, "r") as f:
         user_data = f.read()
+
+    # Find the network UUID based on the name
+    network_name = settings["vm_network"]
+    network = conn.network.find_network(network_name)
+    if not network:
+        raise ValueError(f"Network '{network_name}' not found in OpenStack.")
+
     server = conn.compute.create_server(
         name=name,
         flavor_name=settings["vm_flavor"],
         image_name=settings["vm_image"],
-        networks=[{"uuid": settings["vm_network"]}],
+        networks=[{"uuid": network.id}],  # Use the resolved network UUID
         user_data=user_data,
     )
     conn.compute.wait_for_server(server)
