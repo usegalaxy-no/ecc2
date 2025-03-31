@@ -22,10 +22,16 @@ def create_vm(conn, name, cloud_init_file, settings):
     if not flavor:
         raise ValueError(f"Flavor '{flavor_name}' not found in OpenStack.")
 
+    # Resolve the image name to its ID
+    image_name = settings["vm_image"]
+    image = conn.compute.find_image(image_name)
+    if not image:
+        raise ValueError(f"Image '{image_name}' not found in OpenStack.")
+
     server = conn.compute.create_server(
         name=name,
         flavor_id=flavor.id,  # Use the resolved flavor ID
-        image_name=settings["vm_image"],
+        image_id=image.id,  # Use the resolved image ID
         networks=[{"uuid": network.id}],  # Use the resolved network UUID
         user_data=user_data_base64,  # Pass Base64-encoded user_data
     )
