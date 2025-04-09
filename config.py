@@ -1,3 +1,8 @@
+"""
+Configuration parser for OpenStack VM Service.
+Handles merging of configuration file and command-line arguments.
+"""
+
 import argparse
 import configparser
 
@@ -32,20 +37,28 @@ def parse_config_and_args():
     config.read(args.config)
 
     # Merge config file and command-line arguments
-    min_pending_jobs = args.min_pending_jobs or config.get("service", "min_pending_jobs", fallback="1")
-    min_pending_jobs = int(min_pending_jobs.split(";")[0].strip())  # Strip inline comments and convert to int
+    min_pending_jobs = args.min_pending_jobs or config.get(
+        "service", "min_pending_jobs", fallback="1"
+    )
+    min_pending_jobs = int(min_pending_jobs.split(";")[0].strip())  # Strip inline comments
 
     settings = {
         "auth_url": args.auth_url or config.get("openstack", "auth_url", fallback=None),
         "project_name": args.project_name or config.get("openstack", "project_name", fallback=None),
         "username": args.username or config.get("openstack", "username", fallback=None),
         "password": args.password or config.get("openstack", "password", fallback=None),
-        "user_domain_name": args.user_domain_name or config.get("openstack", "user_domain_name", fallback="default"),
-        "project_domain_name": args.project_domain_name or config.get("openstack", "project_domain_name", fallback="default"),
+        "user_domain_name": args.user_domain_name or config.get(
+            "openstack", "user_domain_name", fallback="default"
+        ),
+        "project_domain_name": args.project_domain_name or config.get(
+            "openstack", "project_domain_name", fallback="default"
+        ),
         "vm_flavor": args.vm_flavor or config.get("vm", "flavor", fallback="m1.small"),
         "vm_image": args.vm_image or config.get("vm", "image", fallback="ubuntu-20.04"),
         "vm_network": args.vm_network or config.get("vm", "network", fallback="private"),
-        "check_interval": args.check_interval or config.getint("service", "check_interval", fallback=60),
+        "check_interval": args.check_interval or config.getint(
+            "service", "check_interval", fallback=60
+        ),
         "cloud_init_file": args.cloud_init_file or config.get("vm", "cloud_init_file", fallback=None),
         "min_vms": args.min_vms or config.getint("service", "min_vms", fallback=1),
         "max_vms": args.max_vms or config.getint("service", "max_vms", fallback=10),

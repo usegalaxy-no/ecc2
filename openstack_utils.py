@@ -1,34 +1,32 @@
-from openstack import connection
+"""
+Utility functions for managing OpenStack VMs.
+"""
+
 import base64
+from openstack import connection
 
 def create_vm(conn, name, cloud_init_file, settings):
     """Create a new VM in OpenStack with a cloud-init file."""
     print(f"Creating VM: {name}")
-    with open(cloud_init_file, "r") as f:
+    with open(cloud_init_file, "r", encoding="utf-8") as f:
         user_data = f.read()
 
-    # Encode user_data in Base64
     user_data_base64 = base64.b64encode(user_data.encode("utf-8")).decode("utf-8")
-
-    # Find the network UUID based on the name
     network_name = settings["vm_network"]
     network = conn.network.find_network(network_name)
     if not network:
         raise ValueError(f"Network '{network_name}' not found in OpenStack.")
 
-    # Resolve the flavor name to its ID
     flavor_name = settings["vm_flavor"]
     flavor = conn.compute.find_flavor(flavor_name)
     if not flavor:
         raise ValueError(f"Flavor '{flavor_name}' not found in OpenStack.")
 
-    # Resolve the image name to its ID
     image_name = settings["vm_image"]
     image = conn.compute.find_image(image_name)
     if not image:
         raise ValueError(f"Image '{image_name}' not found in OpenStack.")
 
-    # Validate the key pair name
     key_name = settings["key_name"]
     if key_name:
         keypair = conn.compute.find_keypair(key_name)
@@ -37,18 +35,15 @@ def create_vm(conn, name, cloud_init_file, settings):
 
     server = conn.compute.create_server(
         name=name,
-        flavor_id=flavor.id,  # Use the resolved flavor ID
-        image_id=image.id,  # Use the resolved image ID
-        networks=[{"uuid": network.id}],  # Use the resolved network UUID
-        user_data=user_data_base64,  # Pass Base64-encoded user_data
+        flavor_id=flavor.id,
+        image_id=image.id,
+        networks=[{"uuid": network.id}],
+        user_data=user_data_base64,
     )
     conn.compute.wait_for_server(server)
-
-    # Ensure the VM is in the "ACTIVE" state
     server = conn.compute.get_server(server.id)
     if server.status != "ACTIVE":
         raise RuntimeError(f"VM {name} failed to reach 'ACTIVE' state. Current state: {server.status}")
-
     print(f"VM {name} is in 'ACTIVE' state.")
     return server
 

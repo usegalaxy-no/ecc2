@@ -1,3 +1,7 @@
+"""
+Main module for managing OpenStack VMs and Slurm integration.
+"""
+
 import time
 import subprocess
 from openstack import connection
@@ -13,13 +17,26 @@ def get_slurm_queue():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            check=True
+            check=True,
         )
-        # Count the number of lines in the output, each representing a pending job
         return len(result.stdout.strip().split("\n")) if result.stdout.strip() else 0
     except subprocess.CalledProcessError as e:
         print(f"Error retrieving Slurm queue: {e.stderr}")
         return 0
+
+def handle_vm_creation(conn, settings, vm_name):
+    """Create a VM and add it to the Slurm cluster."""
+    server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
+    vm_ip = None
+    network_name = settings["vm_network"]
+    if network_name in server.addresses:
+        for address in server.addresses[network_name]:
+            if address.get("OS-EXT-IPS:type") == "fixed":
+                vm_ip = address.get("addr")
+                break
+    if not vm_ip:
+        raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name} on network {network_name}.")
+    add_vm_to_slurm(vm_ip, settings)
 
 def main():
     settings = parse_config_and_args()
@@ -41,22 +58,7 @@ def main():
                 if not vm_name:
                     print("No available VM names. Maximum VM limit reached.")
                     break
-                server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
-
-                # Retrieve the VM's IP address from the network interface
-                vm_ip = None
-                network_name = settings["vm_network"]
-                if network_name in server.addresses:
-                    for address in server.addresses[network_name]:
-                        if address.get("OS-EXT-IPS:type") == "fixed":  # Look for a fixed IP
-                            vm_ip = address.get("addr")
-                            break
-
-                if not vm_ip:
-                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name} on network {network_name}.")
-
-                print(f"Adding VM with IP {vm_ip} to Slurm cluster dynamically...")
-                add_vm_to_slurm(vm_ip, settings)
+                handle_vm_creation(conn, settings, vm_name)
         elif running_vms < settings["max_vms"]:
             pending_jobs = get_slurm_queue()
             print(f"Pending jobs: {pending_jobs}")
@@ -65,22 +67,7 @@ def main():
                 if not vm_name:
                     print("No available VM names. Maximum VM limit reached.")
                     break
-                server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
-
-                # Retrieve the VM's IP address from the network interface
-                vm_ip = None
-                network_name = settings["vm_network"]
-                if network_name in server.addresses:
-                    for address in server.addresses[network_name]:
-                        if address.get("OS-EXT-IPS:type") == "fixed":  # Look for a fixed IP
-                            vm_ip = address.get("addr")
-                            break
-
-                if not vm_ip:
-                    raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name} on network {network_name}.")
-
-                print(f"Adding VM with IP {vm_ip} to Slurm cluster dynamically...")
-                add_vm_to_slurm(vm_ip, settings)
+                handle_vm_creation(conn, settings, vm_name)
         else:
             print(f"Maximum VM limit of {settings['max_vms']} reached. No new VMs will be created.")
         time.sleep(settings["check_interval"])

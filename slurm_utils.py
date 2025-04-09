@@ -1,3 +1,7 @@
+"""
+Utility functions for managing Slurm nodes.
+"""
+
 import subprocess
 
 def generate_node_config(cpus, memory, feature):
@@ -19,5 +23,5 @@ def add_vm_to_slurm(vm_ip, settings):
             check=True,
         )
         print(f"VM with IP {vm_ip} dynamically registered with Slurm.")
-    except Exception as e:
+    except subprocess.CalledProcessError as e:
         print(f"Error dynamically registering VM with Slurm: {e}")
