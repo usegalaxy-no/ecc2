@@ -8,22 +8,9 @@ users:
     lock_passwd: false
     passwd: $6$rounds=4096$randomsalt$hashedpassword
 
-write_files:
-  - path: /etc/munge/munge.key
-    permissions: '0400'
-    owner: munge:munge
-    content: |
-      ${munge_key}  # Replace this with the config variable for the Munge key
-
 runcmd:
   - dnf update -y
-  - dnf install -y slurm slurm-slurmd munge
-  - chown munge:munge /etc/munge/munge.key
-  - chmod 400 /etc/munge/munge.key
-  - systemctl enable munge
-  - systemctl start munge
-  - echo "NodeName=$(hostname) CPUs=4 RealMemory=8000 State=UNKNOWN" >> /etc/slurm/slurm.conf
-  - echo "$(hostname) added to Slurm cluster"
-  - systemctl restart slurmctld
-  - systemctl enable slurmd
-  - systemctl start slurmd
+  - dnf install -y python3 python3-pip git
+  - pip3 install ansible
+  - git clone https://github.com/your-repo/your-playbook-repo.git /etc/ansible/playbook-repo
+  - ansible-playbook /etc/ansible/playbook-repo/ecc-setup.yml
