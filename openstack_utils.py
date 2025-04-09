@@ -3,7 +3,6 @@ Utility functions for managing OpenStack VMs.
 """
 
 import base64
-from openstack import connection
 
 def create_vm(conn, name, cloud_init_file, settings):
     """Create a new VM in OpenStack with a cloud-init file."""
@@ -12,40 +11,40 @@ def create_vm(conn, name, cloud_init_file, settings):
         user_data = f.read()
 
     user_data_base64 = base64.b64encode(user_data.encode("utf-8")).decode("utf-8")
-    network_name = settings["vm_network"]
-    network = conn.network.find_network(network_name)
+    network = conn.network.find_network(settings["vm_network"])
     if not network:
-        raise ValueError(f"Network '{network_name}' not found in OpenStack.")
+        raise ValueError(f"Network '{settings['vm_network']}' not found in OpenStack.")
 
-    flavor_name = settings["vm_flavor"]
-    flavor = conn.compute.find_flavor(flavor_name)
+    flavor = conn.compute.find_flavor(settings["vm_flavor"])
     if not flavor:
-        raise ValueError(f"Flavor '{flavor_name}' not found in OpenStack.")
+        raise ValueError(f"Flavor '{settings['vm_flavor']}' not found in OpenStack.")
 
-    image_name = settings["vm_image"]
-    image = conn.compute.find_image(image_name)
+    image = conn.compute.find_image(settings["vm_image"])
     if not image:
-        raise ValueError(f"Image '{image_name}' not found in OpenStack.")
+        raise ValueError(f"Image '{settings['vm_image']}' not found in OpenStack.")
 
-    key_name = settings["key_name"]
-    if key_name:
-        keypair = conn.compute.find_keypair(key_name)
+    if settings["key_name"]:
+        keypair = conn.compute.find_keypair(settings["key_name"])
         if not keypair:
-            raise ValueError(f"Key pair '{key_name}' not found in OpenStack.")
+            raise ValueError(f"Key pair '{settings['key_name']}' not found in OpenStack.")
 
-    server = conn.compute.create_server(
-        name=name,
-        flavor_id=flavor.id,
-        image_id=image.id,
-        networks=[{"uuid": network.id}],
-        user_data=user_data_base64,
-    )
-    conn.compute.wait_for_server(server)
-    server = conn.compute.get_server(server.id)
-    if server.status != "ACTIVE":
-        raise RuntimeError(f"VM {name} failed to reach 'ACTIVE' state. Current state: {server.status}")
-    print(f"VM {name} is in 'ACTIVE' state.")
-    return server
+    try:
+        server = conn.compute.create_server(
+            name=name,
+            flavor_id=flavor.id,
+            image_id=image.id,
+            networks=[{"uuid": network.id}],
+            user_data=user_data_base64,
+        )
+        conn.compute.wait_for_server(server)
+        server = conn.compute.get_server(server.id)
+        if server.status != "ACTIVE":
+            raise RuntimeError(f"VM {name} failed to reach 'ACTIVE' state. Current state: {server.status}")
+        print(f"VM {name} is in 'ACTIVE' state.")
+        return server
+    except RuntimeError as e:
+        print(f"Error creating VM: {e}")
+        raise
 
 def get_running_vms(conn):
     """Get the names of currently running VMs."""
