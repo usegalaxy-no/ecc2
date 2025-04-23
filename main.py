@@ -48,6 +48,15 @@ def main():
         user_domain_name=settings["user_domain_name"],
         project_domain_name=settings["project_domain_name"],
     )
+    # Ensure at least one VM is running on start
+    running_vms = len(get_running_vms(conn))
+    if running_vms < 1:
+        print("No VMs are running. Starting one VM to meet the minimum requirement.")
+        vm_name = get_next_vm_name(conn, settings["vm_name_prefix"], settings["max_vms"])
+        if vm_name:
+            handle_vm_creation(conn, settings, vm_name)
+        else:
+            print("No available VM names. Maximum VM limit reached.")
     while True:
         running_vms = len(get_running_vms(conn))
         print(f"Currently running VMs: {running_vms}")
