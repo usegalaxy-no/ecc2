@@ -29,6 +29,8 @@ def parse_config_and_args():
     parser.add_argument("--vm_name_prefix", type=str, help="Prefix for VM names")
     parser.add_argument("--min_pending_jobs", type=int, help="Minimum pending jobs before creating a new VM")
     parser.add_argument("--key_name", type=str, help="Key pair name for the VM")
+    parser.add_argument("--playbook_path", type=str, help="Path to the Ansible playbook")
+    parser.add_argument("--ansible_user", type=str, help="Ansible user for playbook execution")
 
     args = parser.parse_args()
 
@@ -67,6 +69,8 @@ def parse_config_and_args():
         "vm_name_prefix": args.vm_name_prefix or config.get("vm", "vm_name_prefix", fallback="ecc"),
         "min_pending_jobs": min_pending_jobs,
         "key_name": args.key_name or config.get("vm", "key_name", fallback=None),
+        "playbook_path": args.playbook_path or config.get("ansible", "playbook_path", fallback=None),
+        "ansible_user": args.ansible_user or config.get("ansible", "ansible_user", fallback=None),
     }
 
     return settings
