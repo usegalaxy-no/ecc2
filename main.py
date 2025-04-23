@@ -98,7 +98,8 @@ def main():
         if pending_jobs == 0 and len(running_vms) > settings["min_vms"]:
             print("No jobs in the queue. Deleting excess VMs.")
             for vm_name in running_vms[settings["min_vms"]:]:
-                delete_vm(conn, vm_name)
+                if vm_name.startswith(settings["vm_name_prefix"]):  # Only delete VMs with the prefix
+                    delete_vm(conn, vm_name)
 
         elif len(running_vms) < settings["min_vms"]:
             print(f"Starting VMs to meet minimum requirement of {settings['min_vms']} VMs.")
