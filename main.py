@@ -25,8 +25,8 @@ def get_slurm_queue():
         return 0
 
 def handle_vm_creation(conn, settings, vm_name):
-    """Create a VM and add it to the Slurm cluster."""
-    server = create_vm(conn, vm_name, settings["cloud_init_file"], settings)
+    """Create a VM and configure it using an Ansible playbook."""
+    server = create_vm(conn, vm_name, None, settings)  # No cloud-init file
     vm_ip = None
     network_name = settings["vm_network"]
     if network_name in server.addresses:
@@ -36,6 +36,32 @@ def handle_vm_creation(conn, settings, vm_name):
                 break
     if not vm_ip:
         raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name} on network {network_name}.")
+
+    # Clone the playbook repository and run the playbook
+    try:
+        print(f"Configuring VM {vm_name} with IP {vm_ip} using Ansible playbook...")
+        subprocess.run(
+            [
+                "git", "clone", settings["playbook_repo"], 
+                "/tmp/playbook-repo"
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                "ansible-playbook", 
+                f"/tmp/playbook-repo/{settings['playbook_path']}", 
+                "-i", f"{vm_ip},", 
+                "--private-key", settings["key_name"],
+                "-u", settings["ansible_user"]
+            ],
+            check=True,
+        )
+        print(f"VM {vm_name} configured successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error configuring VM {vm_name} with Ansible: {e}")
+        raise
+
     add_vm_to_slurm(vm_ip, settings)
 
 def main():

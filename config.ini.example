@@ -23,6 +23,11 @@ vm_name_prefix = ecc  ; Added VM name prefix
 check_interval = 60
 min_pending_jobs = 1  ; Minimum pending jobs before creating a new VM
 
+[ansible]
+playbook_repo = https://github.com/your-repo/your-playbook-repo.git
+playbook_path = ecc-setup.yml
+ansible_user = slurm
+
 [slurm]
 memory = 80000
 feature = f1
