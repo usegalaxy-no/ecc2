@@ -16,7 +16,6 @@ This project automates the creation and management of virtual machines (VMs) in 
 - **`slurm_utils.py`**: Handles Slurm node registration.
 - **`main.py`**: The main entry point for the service.
 - **`config.ini`**: Configuration file for OpenStack, Slurm, and service settings.
-- **`cloud_init.yaml`**: Cloud-init file for configuring VMs.
 
 ## Prerequisites
 
@@ -47,7 +46,6 @@ project_domain_name = default
 flavor = m1.small
 image = ubuntu-20.04
 network = private
-cloud_init_file = cloud_init.yaml
 min_vms = 1
 max_vms = 5
 vm_name_prefix = ecc
@@ -61,28 +59,6 @@ memory = 80000
 feature = f1
 node_config = NodeName=node1 CPUs=16 Boards=1 SocketsPerBoard=1 CoresPerSocket=8 ThreadsPerCore=2 RealMemory=31848
 cpus = 16
-```
-
-### `cloud_init.yaml`
-
-Customize the `cloud_init.yaml` file to configure the VM. Example:
-
-```yaml
-#cloud-config
-users:
-  - name: slurm
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    groups: users
-    home: /home/slurm
-    shell: /bin/bash
-    lock_passwd: false
-    passwd: $6$rounds=4096$randomsalt$hashedpassword
-
-runcmd:
-  - apt-get update
-  - apt-get install -y slurm-wlm
-  - systemctl enable slurmd
-  - systemctl start slurmd
 ```
 
 ## Usage

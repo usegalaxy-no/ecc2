@@ -14,7 +14,6 @@ flavor = m1.small
 image = ubuntu-20.04
 key_name = ssh-key-name
 network = private
-cloud_init_file = cloud_init.yaml
 min_vms = 1
 max_vms = 5
 vm_name_prefix = ecc  ; Added VM name prefix

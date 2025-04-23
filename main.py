@@ -26,7 +26,7 @@ def get_slurm_queue():
 
 def handle_vm_creation(conn, settings, vm_name):
     """Create a VM and configure it using a local Ansible playbook."""
-    server = create_vm(conn, vm_name, None, settings)  # No cloud-init file
+    server = create_vm(conn, vm_name, settings)
     vm_ip = None
     network_name = settings["vm_network"]
     if network_name in server.addresses:
