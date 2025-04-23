@@ -45,7 +45,6 @@ def handle_vm_creation(conn, settings, vm_name):
                 "ansible-playbook",
                 settings["playbook_path"],
                 "-i", f"{vm_ip},",
-                "--private-key", settings["key_name"],
                 "-u", settings["ansible_user"]
             ],
             check=True,
