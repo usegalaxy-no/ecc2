@@ -25,8 +25,8 @@ def create_vm(conn, name, cloud_init_file, settings):
 
     if settings["key_name"]:
         keypair = conn.compute.find_keypair(settings["key_name"])
-        if not keypair:
-            raise ValueError(f"Key pair '{settings['key_name']}' not found in OpenStack.")
+        if not keypair or keypair.id != settings["key_name"]:
+            raise ValueError(f"Key pair '{settings['key_name']}' not found or does not match the expected ID.")
 
     try:
         server = conn.compute.create_server(
@@ -35,6 +35,7 @@ def create_vm(conn, name, cloud_init_file, settings):
             image_id=image.id,
             networks=[{"uuid": network.id}],
             user_data=user_data_base64,
+            key_name=settings["key_name"],  # Ensure the SSH key is used
         )
         conn.compute.wait_for_server(server)
         server = conn.compute.get_server(server.id)
