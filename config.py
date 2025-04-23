@@ -31,6 +31,7 @@ def parse_config_and_args():
     parser.add_argument("--key_name", type=str, help="Key pair name for the VM")
     parser.add_argument("--playbook_path", type=str, help="Path to the Ansible playbook")
     parser.add_argument("--ansible_user", type=str, help="Ansible user for playbook execution")
+    parser.add_argument("--private_key_file", type=str, help="Path to the private key file for Ansible")
 
     args = parser.parse_args()
 
@@ -71,6 +72,7 @@ def parse_config_and_args():
         "key_name": args.key_name or config.get("vm", "key_name", fallback=None),
         "playbook_path": args.playbook_path or config.get("ansible", "playbook_path", fallback=None),
         "ansible_user": args.ansible_user or config.get("ansible", "ansible_user", fallback=None),
+        "private_key_file": args.private_key_file or config.get("ansible", "private_key_file", fallback=None),
     }
 
     return settings
