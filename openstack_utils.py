@@ -4,13 +4,9 @@ Utility functions for managing OpenStack VMs.
 
 import base64
 
-def create_vm(conn, name, cloud_init_file, settings):
-    """Create a new VM in OpenStack with a cloud-init file."""
+def create_vm(conn, name, settings):
+    """Create a new VM in OpenStack."""
     print(f"Creating VM: {name}")
-    with open(cloud_init_file, "r", encoding="utf-8") as f:
-        user_data = f.read()
-
-    user_data_base64 = base64.b64encode(user_data.encode("utf-8")).decode("utf-8")
     network = conn.network.find_network(settings["vm_network"])
     if not network:
         raise ValueError(f"Network '{settings['vm_network']}' not found in OpenStack.")
@@ -34,7 +30,6 @@ def create_vm(conn, name, cloud_init_file, settings):
             flavor_id=flavor.id,
             image_id=image.id,
             networks=[{"uuid": network.id}],
-            user_data=user_data_base64,
             key_name=settings["key_name"],  # Ensure the SSH key is used
         )
         conn.compute.wait_for_server(server)

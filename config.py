@@ -20,7 +20,6 @@ def parse_config_and_args():
     parser.add_argument("--vm_image", type=str, help="VM image")
     parser.add_argument("--vm_network", type=str, help="VM network")
     parser.add_argument("--check_interval", type=int, help="Check interval in seconds")
-    parser.add_argument("--cloud_init_file", type=str, help="Path to cloud-init file")
     parser.add_argument("--min_vms", type=int, help="Minimum number of VMs")
     parser.add_argument("--max_vms", type=int, help="Maximum number of VMs")
     parser.add_argument("--memory", type=int, help="Memory for Slurm node (in MB)")
@@ -59,7 +58,6 @@ def parse_config_and_args():
         "check_interval": args.check_interval or config.getint(
             "service", "check_interval", fallback=60
         ),
-        "cloud_init_file": args.cloud_init_file or config.get("vm", "cloud_init_file", fallback=None),
         "min_vms": args.min_vms or config.getint("service", "min_vms", fallback=1),
         "max_vms": args.max_vms or config.getint("service", "max_vms", fallback=10),
         "memory": args.memory or config.getint("slurm", "memory", fallback=80000),
