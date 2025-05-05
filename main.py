@@ -120,7 +120,7 @@ def main():
         else:
             idle_start_time = None  # Reset idle time if there are pending jobs
 
-        elif len(running_vms) < settings["min_vms"]:
+        if len(running_vms) < settings["min_vms"]:
             print(f"Starting VMs to meet minimum requirement of {settings['min_vms']} VMs.")
             for _ in range(settings["min_vms"] - len(running_vms)):
                 vm_name = get_next_vm_name(conn, settings["vm_name_prefix"], settings["max_vms"])
