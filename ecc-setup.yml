@@ -5,11 +5,11 @@
   gather_facts: no
 
   tasks:
-    - name: Sdd hosts from extra-vars to "temp" group
+    - name: Add hosts from extra-vars to "temp" group
       add_host:
         groups: temp
         name: "{{ item }}"
-      loop: "{{ target_host }}"
+      loop: "{{ target_host | default([]) | list }}"  # Ensure target_host is treated as a list
 
 - hosts: temp
   become: yes
