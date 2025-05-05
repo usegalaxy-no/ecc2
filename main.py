@@ -44,7 +44,8 @@ def handle_vm_creation(conn, settings, vm_name):
             [
                 "ansible-playbook",
                 settings["playbook_path"],
-                f"--extra-vars target_host=[{vm_ip}]",
+                "-i", f"{vm_ip},",
+                "--extra-vars 'target_host=["f"{vm_ip}"]'",
                 "--private-key", settings["private_key_file"],
                 "-u", settings["ansible_user"],
             ],
