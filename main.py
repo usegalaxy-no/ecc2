@@ -112,7 +112,8 @@ def main():
 
     while True:
         running_vms = get_running_vms(conn, settings["vm_name_prefix"])
-        print(f"Currently running VMs: {len(running_vms)}")
+        print(f"Currently running VMs: {len(running_vms)} (Filtered by prefix: {settings['vm_name_prefix']})")
+        print(f"Running VMs: {running_vms}")  # Debugging output to verify VM names
         pending_jobs = get_slurm_queue()
         print(f"Pending jobs: {pending_jobs}")
 
@@ -148,6 +149,7 @@ def main():
                 handle_vm_creation(conn, settings, vm_name)
 
         elif len(running_vms) < settings["max_vms"] and pending_jobs >= settings["min_pending_jobs"]:
+            print(f"Creating a new VM. Current running VMs: {len(running_vms)}, Max VMs: {settings['max_vms']}")
             vm_name = get_next_vm_name(conn, settings["vm_name_prefix"], settings["max_vms"])
             if not vm_name:
                 print("No available VM names. Maximum VM limit reached.")
