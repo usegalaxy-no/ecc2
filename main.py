@@ -158,6 +158,7 @@ def main():
 
         else:
             print(f"Maximum VM limit of {settings['max_vms']} reached. No new VMs will be created.")
+            print(f"Current running VMs: {len(running_vms)}, Max VMs: {settings['max_vms']}")  # Debugging output
 
         time.sleep(settings["check_interval"])
 
