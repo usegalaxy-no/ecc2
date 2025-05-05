@@ -83,8 +83,8 @@ def main():
     idle_start_time = None  # Track when the queue became idle
 
     # Ensure at least one VM is running on start
-    running_vms = len(get_running_vms(conn))
-    if running_vms < 1:
+    running_vms = get_running_vms(conn, settings["vm_name_prefix"])
+    if len(running_vms) < 1:
         print("No VMs are running. Starting one VM to meet the minimum requirement.")
         vm_name = get_next_vm_name(conn, settings["vm_name_prefix"], settings["max_vms"])
         if vm_name:
@@ -93,7 +93,7 @@ def main():
             print("No available VM names. Maximum VM limit reached.")
 
     while True:
-        running_vms = get_running_vms(conn)
+        running_vms = get_running_vms(conn, settings["vm_name_prefix"])
         print(f"Currently running VMs: {len(running_vms)}")
         pending_jobs = get_slurm_queue()
         print(f"Pending jobs: {pending_jobs}")

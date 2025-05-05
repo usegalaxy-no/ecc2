@@ -42,11 +42,14 @@ def create_vm(conn, name, settings):
         print(f"Error creating VM: {e}")
         raise
 
-def get_running_vms(conn):
-    """Get the names of currently running VMs."""
+def get_running_vms(conn, vm_name_prefix=None):
+    """Get the names of currently running VMs with an optional prefix filter."""
     try:
         servers = conn.compute.servers()
-        return [server.name for server in servers if server.status == "ACTIVE"]
+        running_vms = [server.name for server in servers if server.status == "ACTIVE"]
+        if vm_name_prefix:
+            running_vms = [vm for vm in running_vms if vm.startswith(vm_name_prefix)]
+        return running_vms
     except Exception as e:
         print(f"Error fetching running VMs: {e}")
         return []
