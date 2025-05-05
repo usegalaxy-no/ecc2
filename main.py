@@ -25,7 +25,7 @@ def get_slurm_queue():
         print(f"Error retrieving Slurm queue: {e.stderr}")
         return 0
 
-def wait_for_ssh(vm_ip, timeout=600, interval=5):
+def wait_for_ssh(vm_ip, timeout=300, interval=5):
     """Wait for the SSH port to become available."""
     print(f"Waiting for SSH on {vm_ip}...")
     start_time = time.time()
