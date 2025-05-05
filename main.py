@@ -4,6 +4,7 @@ Main module for managing OpenStack VMs and Slurm integration.
 
 import time
 import subprocess
+import socket  # Add this import for checking SSH connectivity
 from openstack import connection
 from config import parse_config_and_args
 from openstack_utils import create_vm, get_running_vms, get_next_vm_name
@@ -24,6 +25,19 @@ def get_slurm_queue():
         print(f"Error retrieving Slurm queue: {e.stderr}")
         return 0
 
+def wait_for_ssh(vm_ip, timeout=600, interval=5):
+    """Wait for the SSH port to become available."""
+    print(f"Waiting for SSH on {vm_ip}...")
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            with socket.create_connection((vm_ip, 22), timeout=10):
+                print(f"SSH is available on {vm_ip}.")
+                return True
+        except (socket.timeout, ConnectionRefusedError):
+            time.sleep(interval)
+    raise RuntimeError(f"SSH not available on {vm_ip} after {timeout} seconds.")
+
 def handle_vm_creation(conn, settings, vm_name):
     """Create a VM and configure it using a local Ansible playbook."""
     server = create_vm(conn, vm_name, settings)
@@ -36,6 +50,9 @@ def handle_vm_creation(conn, settings, vm_name):
                 break
     if not vm_ip:
         raise RuntimeError(f"Failed to retrieve IP address for VM {vm_name} on network {network_name}.")
+
+    # Wait for SSH to become available
+    wait_for_ssh(vm_ip)
 
     # Run the local playbook
     try:
