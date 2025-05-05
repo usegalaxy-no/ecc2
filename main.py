@@ -47,6 +47,7 @@ def handle_vm_creation(conn, settings, vm_name):
                 "-i", f"{vm_ip},",
                 "--private-key", settings["private_key_file"],
                 "-u", settings["ansible_user"],
+                "--ssh-common-args='-o StrictHostKeyChecking=no'",
             ],
             check=True,
         )
