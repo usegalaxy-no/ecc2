@@ -1,5 +1,17 @@
 ---
-- hosts: all
+# Needed to run ansible on a defined ip using extra-vars
+- hosts: localhost
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: Sdd hosts from extra-vars to "temp" group
+      add_host:
+        groups: temp
+        name: "{{ item }}"
+      loop: "{{ target_host }}"
+
+- hosts: temp
   become: yes
   tasks:
     - name: Update all packages (APT)
