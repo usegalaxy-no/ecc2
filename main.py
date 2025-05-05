@@ -46,7 +46,7 @@ def handle_vm_creation(conn, settings, vm_name):
                 settings["playbook_path"],
                 "-i", f"{vm_ip},",
                 "--private-key", settings["private_key_file"],
-                "-u", settings["ansible_user"]
+                "-u", settings["ansible_user"],
             ],
             check=True,
         )
@@ -80,6 +80,8 @@ def main():
         user_domain_name=settings["user_domain_name"],
         project_domain_name=settings["project_domain_name"],
     )
+    idle_start_time = None  # Track when the queue became idle
+
     # Ensure at least one VM is running on start
     running_vms = len(get_running_vms(conn))
     if running_vms < 1:
@@ -89,17 +91,34 @@ def main():
             handle_vm_creation(conn, settings, vm_name)
         else:
             print("No available VM names. Maximum VM limit reached.")
+
     while True:
         running_vms = get_running_vms(conn)
         print(f"Currently running VMs: {len(running_vms)}")
         pending_jobs = get_slurm_queue()
         print(f"Pending jobs: {pending_jobs}")
 
-        if pending_jobs == 0 and len(running_vms) > settings["min_vms"]:
-            print("No jobs in the queue. Deleting excess VMs.")
-            for vm_name in running_vms[settings["min_vms"]:]:
-                if vm_name.startswith(settings["vm_name_prefix"]):  # Only delete VMs with the prefix
-                    delete_vm(conn, vm_name)
+        if pending_jobs == 0:
+            if idle_start_time is None:
+                idle_start_time = time.time()  # Start tracking idle time
+            idle_duration = (time.time() - idle_start_time) / 60  # Convert to minutes
+
+            if len(running_vms) > settings["min_vms"]:
+                print("No jobs in the queue. Deleting excess VMs.")
+                vms_to_delete = [
+                    vm_name for vm_name in running_vms[settings["min_vms"]:]
+                    if vm_name.startswith(settings["vm_name_prefix"])
+                ]
+                if idle_duration >= settings["idle_time_before_deletion"]:
+                    # Delete up to max_vms_to_delete VMs
+                    for vm_name in vms_to_delete[:settings["max_vms_to_delete"]]:
+                        delete_vm(conn, vm_name)
+                else:
+                    # Delete only one VM at a time
+                    if vms_to_delete:
+                        delete_vm(conn, vms_to_delete[0])
+        else:
+            idle_start_time = None  # Reset idle time if there are pending jobs
 
         elif len(running_vms) < settings["min_vms"]:
             print(f"Starting VMs to meet minimum requirement of {settings['min_vms']} VMs.")

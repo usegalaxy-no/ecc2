@@ -32,6 +32,8 @@ def parse_config_and_args():
     parser.add_argument("--playbook_path", type=str, help="Path to the Ansible playbook")
     parser.add_argument("--ansible_user", type=str, help="Ansible user for playbook execution")
     parser.add_argument("--private_key_file", type=str, help="Path to the private key file for Ansible")
+    parser.add_argument("--idle_time_before_deletion", type=int, help="Time in minutes before deleting idle VMs")
+    parser.add_argument("--max_vms_to_delete", type=int, help="Maximum number of VMs to delete at once")
 
     args = parser.parse_args()
 
@@ -73,6 +75,8 @@ def parse_config_and_args():
         "playbook_path": args.playbook_path or config.get("ansible", "playbook_path", fallback=None),
         "ansible_user": args.ansible_user or config.get("ansible", "ansible_user", fallback=None),
         "private_key_file": args.private_key_file or config.get("ansible", "private_key_file", fallback=None),
+        "idle_time_before_deletion": args.idle_time_before_deletion or config.getint("service", "idle_time_before_deletion", fallback=10),
+        "max_vms_to_delete": args.max_vms_to_delete or config.getint("service", "max_vms_to_delete", fallback=1),
     }
 
     return settings
