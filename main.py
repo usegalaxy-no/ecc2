@@ -157,8 +157,7 @@ def main():
             handle_vm_creation(conn, settings, vm_name)
 
         else:
-            print(f"Maximum VM limit of {settings['max_vms']} reached. No new VMs will be created.")
-            print(f"Current running VMs: {len(running_vms)}, Max VMs: {settings['max_vms']}")  # Debugging output
+            print(f"Current running VMs: {len(running_vms)}, Max VMs: {settings['max_vms']}")
 
         time.sleep(settings["check_interval"])
 
