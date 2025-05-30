@@ -8,7 +8,6 @@ import socket  # Add this import for checking SSH connectivity
 from openstack import connection
 from config import parse_config_and_args
 from openstack_utils import create_vm, get_running_vms, get_next_vm_name
-from slurm_utils import add_vm_to_slurm
 
 def get_slurm_queue():
     """Retrieve the number of pending jobs from the Slurm queue."""
@@ -72,8 +71,6 @@ def handle_vm_creation(conn, settings, vm_name):
     except subprocess.CalledProcessError as e:
         print(f"Error configuring VM {vm_name} with Ansible: {e}")
         raise
-
-    add_vm_to_slurm(vm_ip, settings)
 
 def delete_vm(conn, vm_name):
     """Delete a VM by name."""

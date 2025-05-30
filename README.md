@@ -7,13 +7,12 @@ This project automates the creation and management of virtual machines (VMs) in 
 - Automatically creates VMs in OpenStack based on Slurm job queue and minimum/maximum VM limits.
 - Dynamically registers VMs with a Slurm cluster using `slurmd -Z`.
 - Supports configuration through a `config.ini` file and command-line arguments.
-- Sequentially names VMs with the prefix `ecc-*`.
+- Sequentially names VMs with the prefix `ecc*`.
 
 ## File Structure
 
 - **`config.py`**: Handles configuration parsing from `config.ini` and command-line arguments.
 - **`openstack_utils.py`**: Contains OpenStack-related functions for creating VMs and managing VM names.
-- **`slurm_utils.py`**: Handles Slurm node registration.
 - **`main.py`**: The main entry point for the service.
 - **`config.ini`**: Configuration file for OpenStack, Slurm, and service settings.
 
@@ -81,7 +80,7 @@ cpus = 16
    - If the number of running VMs is below the `min_vms` or there are at least `min_pending_jobs` pending jobs, it creates new VMs.
 
 2. **VM Naming**:
-   - VMs are named sequentially with the prefix `ecc-*` (e.g., `ecc-1`, `ecc-2`).
+   - VMs are named sequentially with the prefix `ecc*` (e.g., `ecc1`, `ecc2`).
 
 3. **Slurm Registration**:
    - Each VM is dynamically registered with the Slurm cluster using `slurmd -Z`.
