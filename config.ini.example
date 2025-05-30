@@ -16,7 +16,7 @@ key_name = ssh-key-name
 network = private
 min_vms = 1
 max_vms = 5
-vm_name_prefix = ecc  ; Added VM name prefix
+vm_name_prefix = ecc
 
 [service]
 check_interval = 60

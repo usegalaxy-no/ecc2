@@ -58,7 +58,7 @@ def get_next_vm_name(conn, vm_name_prefix, max_vms):
     """Generate the next available VM name."""
     existing_vms = [server.name for server in conn.compute.servers()]
     for i in range(1, max_vms + 1):
-        vm_name = f"{vm_name_prefix}-{i}"
+        vm_name = f"{vm_name_prefix}{i}"  # Remove the hyphen from the VM name
         if vm_name not in existing_vms:
             return vm_name
     return None
