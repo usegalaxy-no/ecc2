@@ -9,6 +9,13 @@ This project automates the creation and management of virtual machines (VMs) in 
 - Supports configuration through a `config.ini` file and command-line arguments.
 - Sequentially names VMs with the prefix `ecc*`.
 
+## Assumptions
+
+This project assumes that you already have a Slurm controller running in the same OpenStack project where you want the execution nodes to be created.
+
+If you do not have a Slurm controller, you can manually install one using the following Ansible role:
+[https://github.com/usegalaxy-no/ansible-role-slurm](https://github.com/usegalaxy-no/ansible-role-slurm)
+
 ## File Structure
 
 - **`config.py`**: Handles configuration parsing from `config.ini` and command-line arguments.
